@@ -5,6 +5,7 @@ Telegram shell bot
 
 [源](https://github.com/byjk/tgshellbot)
 
+PS：Bug还是挺多的，不是我的锅
 
 ### 前置
 * python3
@@ -17,6 +18,10 @@ git clone https://github.com/chr233/tgshellbot.git
 cd tgshellbot
 python3 tgsbot.py
 ```
+推荐使用systemd运行
+
+### 编写插件
+plugins目录是插件目录，默认插件为aliases.py
 
 #### 没有装python3以及pip的解决方式
 
