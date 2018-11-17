@@ -1,4 +1,5 @@
 #/usr/bin/python3
+#-*- coding:utf-8 -*-
 
 import os
 import time
@@ -13,7 +14,7 @@ class TelegramShellBot:
     _bot = None
     _adm_chat_id = 0
     _cmdList = []
-    _config_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)),'shellbot.conf')
+    _config_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)),'config.json')
     _plugins = []
 
     def loadplugins(self):
@@ -27,7 +28,7 @@ class TelegramShellBot:
                     p.plugin_init(self)
                     self._plugins.append(p)
                 except Exception as e:
-                    print ("Error loading plugin {0}: {1}".format(filename, e))
+                    print ("加载插件 {0} 出错：{1}".format(filename, e))
 
     def find_plugincmd(self, c):
         for p in self._plugins:
@@ -57,21 +58,21 @@ class TelegramShellBot:
         return False
 
     def setup(self):
-        print('Input bot token:', end='')
+        print('输入Bot Token：', end='')
         self._token = input()
         self._bot = telepot.Bot(self._token)
         p = self._bot.getMe()
-        print('Bot: ', p['username'])
-        print('Waiting for admin connect (Ctrl+c for break)...')
+        print('Bot名：', p['username'])
+        print('等待管理员发送消息 (Ctrl+C 退出)...')
         p = []
         offset = None 
         while True:
             p = self._bot.getUpdates(offset=offset)
-            # print(p)
+			# print(p)
             for m in p:
                 if 'update_id' in m.keys():
                     offset = m['update_id']+1
-                print('User "', m['message']['chat']['username'], '" is bot admin?(Y/n)', end='')
+                print('管理员ID是 [ "', m['message']['chat']['username'], '" ] 吗? (Y/n)', end='')
                 s = input()
                 if s in ['', 'y', 'Y']:
                     self._adm_chat_id = m['message']['chat']['id']
@@ -87,27 +88,24 @@ class TelegramShellBot:
             if self._adm_chat_id == chat_id:
                 self.handle_master(msg)
             else:
-                self.sendMessage("Non admin message: {0} from {1}".format(msg['text'], chat_id))
+                self.sendMessage("你没有权利这么做")
         except Exception as err:
-            self.sendMessage("error: {0}".format(err))
+            self.sendMessage("错误：{0}".format(err))
 
     def cmdHandler(self, txt):
         cmd = txt.split(' ')
         c = cmd[0].lower()
         if c == '/start':
-            self.sendMessage('Hi master!')
-        elif c == '/ping':
-            self.sendMessage('pong')
-        elif c == '/get':
-            self.sendMessage('Not supported. yet')
-            # f = txt[4:].strip()
-            # bot.sendDocument()
+            self.sendMessage('机器人已连接')
+        elif c == '/stop':
+            self.sendMessage('机器人停止中……')
+			exit()
         else:
             plug = self.find_plugincmd(c[1:])
             if plug:
                 plug.plugin_handler(txt)
             else:
-                self.sendMessage('Unsupported command '+c)
+                self.sendMessage('未知命令：'+c)
 
     def call_shell(self, text):
         t = text
@@ -121,9 +119,9 @@ class TelegramShellBot:
             if out:
                 self.sendMessage(out)
         elif cod:
-            self.sendMessage("exit code " + str(cod))
+            self.sendMessage("错误，退出码：" + str(cod))
         else:
-            self.sendMessage("none")
+            self.sendMessage("无返回值")
 
     def handle_master(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
@@ -150,18 +148,18 @@ class TelegramShellBot:
     def __init__(self):
         if not self.loadconfig():
             if not self.setup():
-                print('Wrong setup')
+                print('不支持的启动方式')
                 exit()
             else:
                 self.saveconfig()
         self._bot = telepot.Bot(self._token)
         self.loadplugins()
         MessageLoop(self._bot, self.handle).run_as_thread()
-        print('Listening ...')
+        print('开始监听消息 ...')
         # Keep the program running.
         while 1:
-            time.sleep(10)
+            time.sleep(50)
 
 if __name__ == '__main__':
-    print('Telegram shell bot by jk@tut.by (c) 2018')
+    print('Telegram shell bot 启动')
     TelegramShellBot()
