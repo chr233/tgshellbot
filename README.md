@@ -2,7 +2,8 @@ Telegram shell bot
 ==================
 
 基于telegram的shell机器人，汉化 by Chr_
-[原作者](https://github.com/byjk/tgshellbot)
+
+[源](https://github.com/byjk/tgshellbot)
 
 
 ### 前置
