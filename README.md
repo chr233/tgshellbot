@@ -1,7 +1,7 @@
 Telegram shell bot
 ==================
 
-基于telegram的shell机器人，汉化 by Chr_
+基于telegram的shell机器人，做了汉化
 
 [源](https://github.com/byjk/tgshellbot)
 
